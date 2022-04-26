@@ -1,5 +1,5 @@
 #include<iostream>
-
+#include<queue>
 
 using namespace std;
 
@@ -7,6 +7,23 @@ using namespace std;
 #define EAST 1
 #define SOUTH 2
 #define WEST 3
+
+const int Neighbours[4][2] = {{0,-1},
+							  {0,1},
+							  {1,0},
+							  {-1,0} };
+
+struct Cell
+{
+	int row;
+	int column;
+	int idea;
+	Cell(int _row, int _column)
+	{
+		row = _row;
+		column = _column;
+	}
+};
 
 template <int ROWS, int COLUMNS>
 class Maze
@@ -64,12 +81,51 @@ public:
 	{
 		goalRow = row;
 		goalColumns = column;
+
+		floodFill(goalRow, goalColumns, 0);
 	}
 
-	void floodFill(int row, int column)
+	void floodFill(int row, int column, int newValue)
 	{
+		Cell currentCell(row, column);
+		currentCell.idea = 0;
+		queue<Cell> list;
+		list.push(currentCell);
+		int currntValue = maze[row][column];
+		while (!list.empty())
+		{
+			currentCell = list.front();
+			list.pop();
+			if (currentCell.row < 0 || currentCell.row >= ROWS || currentCell.column < 0 || currentCell.column >= COLUMNS)
+				continue;
+			if (maze[currentCell.row][currentCell.column] != currntValue)
+				continue;
+			for (auto neighbor : Neighbours)
+			{
+				Cell neighborCell(currentCell.row + neighbor[0], currentCell.column + neighbor[1]);
+				neighborCell.idea = currentCell.idea + 1;
+				list.push(neighborCell);
+			}
+
+			maze[currentCell.row][currentCell.column] = currentCell.idea;
+		}
+		
 	}
 
+
+	void floodFill1(int row, int column, int currntValue, int newValue)
+	{
+		if (row < 0 || row >= ROWS || column < 0 || column >= COLUMNS)
+			return;
+		if (maze[row][column] != currntValue)
+			return;
+
+		maze[row][column] = newValue;
+		floodFill(row + 1, column, currntValue, newValue + 1);
+		floodFill(row - 1, column, currntValue, newValue + 1);
+		floodFill(row, column + 1, currntValue, newValue + 1);
+		floodFill(row, column - 1, currntValue, newValue + 1);
+	}
 	void addWall(int direction)
 	{
 		switch (direction)
@@ -154,11 +210,11 @@ public:
 };
 int main()
 {
-	Maze <4, 5> maze;
+	Maze <10,10> maze;
 	maze.addRobotPosition(3, 4, WEST);
 	maze.addWall(WEST);
 	maze.addWall(EAST);
-	maze.addGoal(1, 2);
+	maze.addGoal(5,5);
 	maze.print();
 
 	return 0;

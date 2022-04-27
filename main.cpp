@@ -429,10 +429,10 @@ public:
 		}
 
 	}
-	~Maze2()
-	{
-		delete[] maze;
-	}
+	//~Maze2()
+	//{
+	//	delete[] maze;
+	//}
 	void addRobotPosition(int row, int column, int heading)
 	{
 		robotColumn = column;
@@ -507,7 +507,7 @@ public:
 		currentCell.idea = 0;
 		queue<Cell> list;
 		list.push(currentCell);
-		int currntValue = maze[row][column];
+		int currntValue = maze[row][column].value;
 		while (!list.empty())
 		{
 			currentCell = list.front();
@@ -515,7 +515,7 @@ public:
 
 			if (currentCell.row < 0 || currentCell.row >= ROWS || currentCell.column < 0 || currentCell.column >= COLUMNS)
 				continue;
-			if (maze[currentCell.row][currentCell.column] != currntValue)
+			if (maze[currentCell.row][currentCell.column].value != currntValue)
 				continue;
 			for (int i = 0; i < 4; i++)
 			{
@@ -527,7 +527,7 @@ public:
 					list.push(neighborCell);
 				}
 			}
-			maze[currentCell.row][currentCell.column] = currentCell.idea;
+			maze[currentCell.row][currentCell.column].value = currentCell.idea;
 		}
 	}
 
@@ -561,20 +561,6 @@ public:
 		}
 	}
 
-	// This function use recusion approch to do the flood fill
-	void floodFill_1(int row, int column, int currntValue, int newValue)
-	{
-		if (row < 0 || row >= ROWS || column < 0 || column >= COLUMNS)
-			return;
-		if (maze[row][column] != currntValue)
-			return;
-
-		maze[row][column] = newValue;
-		floodFill(row + 1, column, currntValue, newValue + 1);
-		floodFill(row - 1, column, currntValue, newValue + 1);
-		floodFill(row, column + 1, currntValue, newValue + 1);
-		floodFill(row, column - 1, currntValue, newValue + 1);
-	}
 
 	int FindBestNeighbor()
 	{
@@ -650,15 +636,15 @@ public:
 
 	void CreateMaze()
 	{
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < ROWS; i++)
 		{
 			addVirtualWall(i, 0, WEST);
 			addVirtualWall(i, 5, EAST);
 		}
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < COLUMNS-1; i++)
 		{
 			addVirtualWall(0, i, NORTH);
-			addVirtualWall(3, i, SOUTH);
+			addVirtualWall(ROWS-1, i, SOUTH);
 		}
 		addVirtualWall(0, 0, EAST);
 		addVirtualWall(1, 0, EAST);
